@@ -285,6 +285,7 @@ client_socket = None
 is_searching = False
 online_mode = False
 match_trigger_received = False
+connection_message = ""
 player_hp = 100
 player_alive = True
 network_players = []
@@ -349,8 +350,14 @@ def listen_to_server():
 
 
 def start_matchmaking_connection():
-    global client_socket, is_searching, online_mode
+    global client_socket, is_searching, online_mode, connection_message, game_state
+    if IS_BROWSER:
+        connection_message = "ONLINE ROOM REQUIRES A PUBLIC SERVER"
+        is_searching = False
+        online_mode = False
+        return
     if connect is None or websockets is None:
+        connection_message = "ONLINE CONNECTION UNAVAILABLE"
         client_socket = None
         is_searching = False
         online_mode = False
@@ -362,6 +369,7 @@ def start_matchmaking_connection():
         client_socket.send("JOIN_QUEUE")
         threading.Thread(target=listen_to_server, daemon=True).start()
     except Exception:
+        connection_message = "ONLINE SERVER NOT REACHABLE"
         client_socket = None
         is_searching = False
         online_mode = False
@@ -1167,7 +1175,7 @@ async def main():
                 txt_npc = font.render("> JOIN ROOM WITH NPCS", True, col_npc)
                 screen.blit(txt_npc, (btn_npcs_rect.x + 40, btn_npcs_rect.y + 12))
 
-                footer_text = "SYSTEM STATUS: QUEUED..." if is_searching else "SYSTEM STATUS: STABLE // CONNECTION: READY"
+                footer_text = "SYSTEM STATUS: QUEUED..." if is_searching else (connection_message or "SYSTEM STATUS: STABLE // CONNECTION: READY")
                 footer = mini_font.render(footer_text, True, ROOF_BEAM)
                 screen.blit(footer, (60, HEIGHT - 75))
 
