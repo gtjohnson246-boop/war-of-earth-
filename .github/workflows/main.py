@@ -15,7 +15,7 @@ pygame.init()
 
 
 # Window Setup
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = (1280, 720) if sys.platform == "emscripten" else (800, 600)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("War of earth")
 clock = pygame.time.Clock()
