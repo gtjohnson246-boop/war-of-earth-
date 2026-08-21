@@ -6,11 +6,15 @@ import websockets
 HOST = "0.0.0.0"
 PORT = int(os.environ.get("PORT", "5555"))
 clients = set()
+player_ids = {}
 
 
 async def handle_client(websocket):
     clients.add(websocket)
+    player_id = len(player_ids) + 1
+    player_ids[websocket] = player_id
     print(f"Client connected: {websocket.remote_address}")
+    await websocket.send(f"PLAYER_ID:{player_id}")
 
     if len(clients) == 2:
         websockets.broadcast(clients, "MATCH_START")
@@ -22,12 +26,18 @@ async def handle_client(websocket):
                 for client in clients:
                     if client != websocket:
                         await client.send(f"DAMAGE:{damage}")
+            elif message.startswith("MOVE:"):
+                _, x, y = message.split(":", 2)
+                for client in clients:
+                    if client != websocket:
+                        await client.send(f"MOVE:{player_id}:{x}:{y}")
             else:
                 for client in clients:
                     if client != websocket:
                         await client.send(message)
     finally:
         clients.discard(websocket)
+        player_ids.pop(websocket, None)
         print(f"Client disconnected: {websocket.remote_address}")
 
 

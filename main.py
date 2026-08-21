@@ -339,7 +339,8 @@ def listen_to_server():
                 player_hp = 100
                 player_alive = True
             elif response.startswith("MOVE:"):
-                _, ox, oy = response.split(":")
+                parts = response.split(":")
+                _, ox, oy = (parts[0], parts[2], parts[3]) if len(parts) == 4 else parts
                 if network_players:
                     network_players[0].x = float(ox)
                     network_players[0].y = float(oy)
@@ -365,7 +366,8 @@ def poll_browser_messages():
                 player_hp = 100
                 player_alive = True
             elif response.startswith("MOVE:"):
-                _, ox, oy = response.split(":")
+                parts = response.split(":")
+                _, ox, oy = (parts[0], parts[2], parts[3]) if len(parts) == 4 else parts
                 if network_players:
                     network_players[0].x = float(ox)
                     network_players[0].y = float(oy)
