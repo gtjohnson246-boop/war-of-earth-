@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: war-of-earth-server
+    runtime: python
+    buildCommand: pip install websockets
+    startCommand: python server.py
+    plan: free
