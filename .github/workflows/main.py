@@ -104,7 +104,7 @@ player_angle = -math.pi / 2
 FOV = math.pi / 3  
 HALF_FOV = FOV / 2
 NUM_RAYS = 160  
-max_rays_render = 80 if sys.platform == "emscripten" else NUM_RAYS
+max_rays_render = NUM_RAYS
 DELTA_ANGLE = FOV / max_rays_render
 MAX_DEPTH = 600 if sys.platform == "emscripten" else 1000
 SCALE = WIDTH // max_rays_render
