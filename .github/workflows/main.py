@@ -8,6 +8,8 @@ from websockets.sync.client import connect
 import asyncio
 import json
 
+BROWSER_RUNTIME = sys.platform == "emscripten"
+
 # Initialize Pygame pygame.init()
 pygame.init()
 
@@ -340,7 +342,7 @@ def listen_to_server():
 
 def poll_browser_messages():
     global match_trigger_received, player_hp, player_alive
-    if sys.platform != "emscripten":
+    if not BROWSER_RUNTIME:
         return
     try:
         import platform
@@ -366,7 +368,7 @@ def poll_browser_messages():
 
 def start_matchmaking_connection():
     global client_socket, is_searching, online_mode, connection_message, game_state
-    if sys.platform == "emscripten":
+    if BROWSER_RUNTIME:
         try:
             import platform
             platform.window.eval("""
@@ -401,7 +403,7 @@ def start_matchmaking_connection():
 
 def send_my_position():
     global client_socket
-    if sys.platform == "emscripten" and online_mode and client_socket:
+    if BROWSER_RUNTIME and online_mode and client_socket:
         send_browser_message(f"MOVE:{player_x}:{player_y}")
         return
     if online_mode and client_socket:
@@ -412,7 +414,7 @@ def send_my_position():
 
 
 def send_browser_message(message):
-    if sys.platform == "emscripten" and client_socket:
+    if BROWSER_RUNTIME and client_socket:
         try:
             import platform
             platform.window.eval(f"window.__warEarthSocket.send({json.dumps(message)})")
@@ -507,7 +509,7 @@ def fire_weapon():
                     else:
                         if online_mode and client_socket:
                             try:
-                                if sys.platform == "emscripten":
+                                if BROWSER_RUNTIME:
                                     send_browser_message("SHOT_HIT:500")
                                 else:
                                     client_socket.send("SHOT_HIT:500".encode('utf-8'))
