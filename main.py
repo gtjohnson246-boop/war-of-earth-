@@ -120,8 +120,9 @@ SCALE = WIDTH // NUM_RAYS
 player_hp = 100
 player_max_hp = 100
 player_alive = True
-AIM_ANGLE_THRESHOLD = math.radians(45)
+AIM_ANGLE_THRESHOLD = math.radians(60)
 MAX_SHOT_DISTANCE = 500
+CROSSHAIR_SIZE = 8
 
 # Jump Variables
 player_z = 0         
@@ -1044,7 +1045,13 @@ async def main():
                         pygame.draw.circle(screen, WHITE, (center_x, center_y), flash_radius // 2)
                         pygame.draw.circle(screen, TECH_CYAN, (center_x, center_y), flash_radius, 3)
 
-                pygame.draw.circle(screen, TECH_CYAN if game_state == "GAMEPLAY" else WHITE, (WIDTH // 2, HEIGHT // 2), 6, 1)
+                crosshair_x = WIDTH // 2
+                crosshair_y = HEIGHT // 2
+                pygame.draw.line(screen, (255, 255, 255), (crosshair_x - CROSSHAIR_SIZE, crosshair_y), (crosshair_x - 2, crosshair_y), 2)
+                pygame.draw.line(screen, (255, 255, 255), (crosshair_x + 2, crosshair_y), (crosshair_x + CROSSHAIR_SIZE, crosshair_y), 2)
+                pygame.draw.line(screen, (255, 255, 255), (crosshair_x, crosshair_y - CROSSHAIR_SIZE), (crosshair_x, crosshair_y - 2), 2)
+                pygame.draw.line(screen, (255, 255, 255), (crosshair_x, crosshair_y + 2), (crosshair_x, crosshair_y + CROSSHAIR_SIZE), 2)
+                pygame.draw.circle(screen, TECH_CYAN if game_state == "GAMEPLAY" else WHITE, (crosshair_x, crosshair_y), 6, 1)
 
                 # --- OPTICAL ENGINE: VIGNETTE PASS ---
                 # Blits the physical vignetting texture mask on top of the environment layout
