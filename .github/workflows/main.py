@@ -1,3 +1,4 @@
+import sys
 import pygame
 import math
 import random
@@ -104,9 +105,9 @@ FOV = math.pi / 3
 HALF_FOV = FOV / 2
 NUM_RAYS = 160  
 max_rays_render = 80 if sys.platform == "emscripten" else NUM_RAYS
-DELTA_ANGLE = FOV / NUM_RAYS
+DELTA_ANGLE = FOV / max_rays_render
 MAX_DEPTH = 600 if sys.platform == "emscripten" else 1000
-SCALE = WIDTH // NUM_RAYS
+SCALE = WIDTH // max_rays_render
 
 # Health & State Parameters
 player_hp = 100
