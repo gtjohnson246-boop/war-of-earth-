@@ -111,9 +111,9 @@ player_angle = -math.pi / 2
 FOV = math.pi / 3  
 HALF_FOV = FOV / 2
 NUM_RAYS = 160  
-max_rays_render = NUM_RAYS
+max_rays_render = 80 if IS_BROWSER else NUM_RAYS
 DELTA_ANGLE = FOV / NUM_RAYS
-MAX_DEPTH = 1000
+MAX_DEPTH = 600 if IS_BROWSER else 1000
 SCALE = WIDTH // NUM_RAYS
 
 # Health & State Parameters
@@ -1078,7 +1078,7 @@ async def main():
 
                 # --- OPTICAL ENGINE: FILM GRAIN SHADER PASS ---
                 # Creates tiny variations of structural pixel noise to make layouts look organic
-                for _ in range(120):
+                for _ in range(40 if IS_BROWSER else 120):
                     gx = random.randint(0, WIDTH - 1)
                     gy = random.randint(0, HEIGHT - 1)
                     grain_surf = pygame.Surface((2, 2), pygame.SRCALPHA)
