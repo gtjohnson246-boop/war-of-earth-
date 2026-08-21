@@ -23,7 +23,7 @@ pygame.init()
 
 
 # Window Setup
-WIDTH, HEIGHT = (1280, 720) if IS_BROWSER else (800, 600)
+WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("War of earth")
 clock = pygame.time.Clock()
@@ -113,7 +113,7 @@ HALF_FOV = FOV / 2
 NUM_RAYS = 160  
 max_rays_render = NUM_RAYS
 DELTA_ANGLE = FOV / max_rays_render
-MAX_DEPTH = 600 if IS_BROWSER else 1000
+MAX_DEPTH = 1000
 SCALE = WIDTH // max_rays_render
 
 # Health & State Parameters
@@ -1078,7 +1078,7 @@ async def main():
 
                 # --- OPTICAL ENGINE: FILM GRAIN SHADER PASS ---
                 # Creates tiny variations of structural pixel noise to make layouts look organic
-                for _ in range(40 if IS_BROWSER else 120):
+                for _ in range(120):
                     gx = random.randint(0, WIDTH - 1)
                     gy = random.randint(0, HEIGHT - 1)
                     grain_surf = pygame.Surface((2, 2), pygame.SRCALPHA)
