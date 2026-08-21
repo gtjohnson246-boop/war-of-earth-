@@ -496,6 +496,7 @@ async def main():
     global player_x, player_y, player_angle, player_z, jump_velocity, is_jumping
     global player_hp, player_alive, has_gun, is_shooting, shoot_frame
     global recoil_offset_y, muzzle_flash_timer, tick_counter
+    global active_npcs, network_players, client_socket
     running = True
     while running:
         tick_counter += 1
