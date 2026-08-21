@@ -120,7 +120,8 @@ SCALE = WIDTH // NUM_RAYS
 player_hp = 100
 player_max_hp = 100
 player_alive = True
-AIM_ANGLE_THRESHOLD = 0.7
+AIM_ANGLE_THRESHOLD = math.radians(45)
+MAX_SHOT_DISTANCE = 500
 
 # Jump Variables
 player_z = 0         
@@ -434,9 +435,9 @@ def fire_weapon():
             # Normalize angle to range (-pi, pi)
             diff_angle = (diff_angle + math.pi) % (2 * math.pi) - math.pi
 
-            # 3. Check if target is inside the aim cone. The old threshold was too strict,
-            # so a normal click missed the NPC unless it was almost perfectly centered.
-            if abs(diff_angle) < AIM_ANGLE_THRESHOLD:
+            # 3. Check if target is inside the aim cone. This is intentionally forgiving so
+            # a normal click while the NPC is in front of the player still registers damage.
+            if dist <= MAX_SHOT_DISTANCE and abs(diff_angle) < AIM_ANGLE_THRESHOLD:
                 blocked = False
                 check_dist = 0
 
