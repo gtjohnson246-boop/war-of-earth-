@@ -278,7 +278,7 @@ for y in range(HEIGHT):
             alpha = int(min(185, (dist - 0.4) * 240))
             VIGNETTE_MASK.set_at((x, y), (0, 0, 0, alpha))
 # --- NETWORKING GLOBALS ---
-SERVER_IP = "127.0.0.1"
+SERVER_URL = "wss://war-of-earth-server.onrender.com"
 PORT = 5555
 
 client_socket = None
@@ -351,12 +351,6 @@ def listen_to_server():
 
 def start_matchmaking_connection():
     global client_socket, is_searching, online_mode, connection_message, game_state
-    if IS_BROWSER:
-        connection_message = "PUBLIC SERVER UNAVAILABLE - STARTING LOCAL ROOM"
-        is_searching = False
-        online_mode = False
-        game_state = "MAP_SELECT"
-        return
     if connect is None or websockets is None:
         connection_message = "ONLINE CONNECTION UNAVAILABLE"
         client_socket = None
@@ -364,7 +358,7 @@ def start_matchmaking_connection():
         online_mode = False
         return
     try:
-        client_socket = connect(f"ws://{SERVER_IP}:{PORT}")
+        client_socket = connect(SERVER_URL, open_timeout=8)
         is_searching = True
         online_mode = True
         client_socket.send("JOIN_QUEUE")
