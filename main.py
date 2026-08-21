@@ -4,6 +4,7 @@ import math
 import random
 import threading
 import asyncio
+import json
 
 IS_BROWSER = sys.platform == "emscripten"
 
@@ -349,8 +350,54 @@ def listen_to_server():
         pass
 
 
+def poll_browser_messages():
+    global match_trigger_received, player_hp, player_alive
+    if not IS_BROWSER:
+        return
+    try:
+        import platform
+        messages = json.loads(platform.window.eval("JSON.stringify((window.__warEarthMessages || []).splice(0))"))
+        for response in messages:
+            if response == "MATCH_START":
+                match_trigger_received = True
+                player_hp = 100
+                player_alive = True
+            elif response.startswith("MOVE:"):
+                _, ox, oy = response.split(":")
+                if network_players:
+                    network_players[0].x = float(ox)
+                    network_players[0].y = float(oy)
+            elif response.startswith("DAMAGE:"):
+                _, damage = response.split(":", 1)
+                player_hp = max(0, player_hp - int(damage))
+                if player_hp == 0:
+                    player_alive = False
+    except Exception:
+        pass
+
+
 def start_matchmaking_connection():
     global client_socket, is_searching, online_mode, connection_message, game_state
+    if IS_BROWSER:
+        try:
+            import platform
+            platform.window.eval("""
+                window.__warEarthMessages = [];
+                window.__warEarthSocket = new WebSocket("wss://war-of-earth-server.onrender.com");
+                window.__warEarthSocket.onopen = () => window.__warEarthSocket.send("JOIN_QUEUE");
+                window.__warEarthSocket.onmessage = event => window.__warEarthMessages.push(event.data);
+                window.__warEarthSocket.onerror = () => window.__warEarthMessages.push("CONNECTION_ERROR");
+            """)
+            client_socket = platform.window.eval("window.__warEarthSocket")
+            is_searching = True
+            online_mode = True
+            connection_message = ""
+            return
+        except Exception:
+            connection_message = "ONLINE SERVER NOT REACHABLE"
+            is_searching = False
+            online_mode = False
+            return
     if connect is None or websockets is None:
         connection_message = "ONLINE CONNECTION UNAVAILABLE"
         client_socket = None
@@ -372,9 +419,21 @@ def start_matchmaking_connection():
 
 def send_my_position():
     global client_socket
+    if IS_BROWSER and online_mode and client_socket:
+        send_browser_message(f"MOVE:{player_x}:{player_y}")
+        return
     if online_mode and client_socket and connect is not None and websockets is not None:
         try:
             client_socket.send(f"MOVE:{player_x}:{player_y}")
+        except Exception:
+            pass
+
+
+def send_browser_message(message):
+    if IS_BROWSER and client_socket:
+        try:
+            import platform
+            platform.window.eval(f"window.__warEarthSocket.send({json.dumps(message)})")
         except Exception:
             pass
 
@@ -468,7 +527,10 @@ def fire_weapon():
                     else:
                         if online_mode and client_socket:
                             try:
-                                client_socket.send("SHOT_HIT:500".encode('utf-8'))
+                                if IS_BROWSER:
+                                    send_browser_message("SHOT_HIT:500")
+                                else:
+                                    client_socket.send("SHOT_HIT:500".encode('utf-8'))
                             except:
                                 pass
 
@@ -524,6 +586,7 @@ async def main():
     while running:
         tick_counter += 1
         mouse_pos = pygame.mouse.get_pos()
+        poll_browser_messages()
 
         if match_trigger_received:
             match_trigger_received = False
