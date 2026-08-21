@@ -352,9 +352,10 @@ def listen_to_server():
 def start_matchmaking_connection():
     global client_socket, is_searching, online_mode, connection_message, game_state
     if IS_BROWSER:
-        connection_message = "ONLINE ROOM REQUIRES A PUBLIC SERVER"
+        connection_message = "PUBLIC SERVER UNAVAILABLE - STARTING LOCAL ROOM"
         is_searching = False
         online_mode = False
+        game_state = "MAP_SELECT"
         return
     if connect is None or websockets is None:
         connection_message = "ONLINE CONNECTION UNAVAILABLE"
