@@ -479,7 +479,7 @@ def fire_weapon():
         muzzle_flash_timer = 5  
         laser_beams.append({'age': 0, 'max_age': 15})
 
-        targets = active_npcs if not online_mode or game_state == "GAMEPLAY" else network_players
+        targets = network_players if online_mode else active_npcs
 
         for target in targets:
             if not target.alive: 
@@ -701,7 +701,7 @@ async def main():
                 cx_plus = new_x + (buffer if move_x > 0 else -buffer)
                 cy_plus = new_y + (buffer if move_y > 0 else -buffer)
 
-                targets = active_npcs if not online_mode or game_state == "GAMEPLAY" else network_players
+                targets = network_players if online_mode else active_npcs
                 npc_collision_radius = 24  
 
                 player_moved = False
@@ -975,7 +975,7 @@ async def main():
                             screen.blit(prompt_text, (WIDTH // 2 - 170, HEIGHT - 150))
 
                 # Actor Rendering Engine
-                current_actors = active_npcs if not online_mode or game_state == "GAMEPLAY" else network_players
+                current_actors = network_players if online_mode else active_npcs
                 for actor in current_actors:
                     if not actor.alive: continue
                     npc_vec_x, npc_vec_y = actor.x - player_x, actor.y - player_y
@@ -996,7 +996,7 @@ async def main():
                                 if actor.flash_timer > 0: return (240, 50, 50) if not flash else (255, 160, 160)
                                 return (int(rgb[0] * light_mod), int(rgb[1] * light_mod), int(rgb[2] * light_mod))
 
-                            suit_rgb = (180, 70, 20) if (online_mode and game_state == "NEIGHBORHOOD") else (45, 55, 75)
+                            suit_rgb = (180, 70, 20) if online_mode else (45, 55, 75)
                             c_suit = apply_lighting(suit_rgb)
                             c_suit_dark = apply_lighting((30, 32, 40))
                             c_armor = apply_lighting((20, 24, 30))
