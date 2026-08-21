@@ -586,6 +586,24 @@ async def main():
         speed = 4
         rot_speed = 0.05
 
+        if game_state in ["GAMEPLAY", "NEIGHBORHOOD"] and keys[pygame.K_ESCAPE]:
+            game_state = "MENU"
+            has_gun = False
+            player_hp = 100
+            player_alive = True
+            player_x = 3.5 * TILE_SIZE
+            player_y = 5.0 * TILE_SIZE
+            player_angle = -math.pi / 2
+            player_z = 0
+            jump_velocity = 0
+            is_jumping = False
+            active_npcs = [NPC(3.5 * TILE_SIZE, 2.0 * TILE_SIZE, 25)]
+            network_players = []
+            is_searching = False
+            online_mode = False
+            client_socket = None
+            match_trigger_received = False
+
         if game_state in ["GAMEPLAY", "NEIGHBORHOOD"]:
             if player_alive:
                 if is_jumping:
