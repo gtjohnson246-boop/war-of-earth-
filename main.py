@@ -120,6 +120,7 @@ SCALE = WIDTH // NUM_RAYS
 player_hp = 100
 player_max_hp = 100
 player_alive = True
+AIM_ANGLE_THRESHOLD = 0.7
 
 # Jump Variables
 player_z = 0         
@@ -433,8 +434,9 @@ def fire_weapon():
             # Normalize angle to range (-pi, pi)
             diff_angle = (diff_angle + math.pi) % (2 * math.pi) - math.pi
 
-            # 3. Check if target is inside the crosshair threshold (~15 degree cone)
-            if abs(diff_angle) < 0.25:
+            # 3. Check if target is inside the aim cone. The old threshold was too strict,
+            # so a normal click missed the NPC unless it was almost perfectly centered.
+            if abs(diff_angle) < AIM_ANGLE_THRESHOLD:
                 blocked = False
                 check_dist = 0
 
@@ -451,12 +453,13 @@ def fire_weapon():
                             break
                     check_dist += 10
 
-                # 4. Apply instant kill if not blocked by a wall
+                # 4. Apply damage if not blocked by a wall
                 if not blocked:
                     if not online_mode or game_state == "GAMEPLAY":
-                        target.hp = 0
-                        target.alive = False
+                        target.hp = max(0, target.hp - 25)
                         target.flash_timer = 6
+                        if target.hp <= 0:
+                            target.alive = False
                     else:
                         if online_mode and client_socket:
                             try:
