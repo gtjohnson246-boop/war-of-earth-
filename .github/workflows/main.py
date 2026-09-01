@@ -270,8 +270,7 @@ for y in range(HEIGHT):
         if dist > 0.4:
             alpha = int(min(185, (dist - 0.4) * 240))
             VIGNETTE_MASK.set_at((x, y), (0, 0, 0, alpha))
-# --- NETWORKING GLOBALS ---
-SERVER_URL = "wss://war-of-earth-server.onrender.com"
+# --- NETWORKING GLOBALS -//war-of-earth-server.onrender.com"
 PORT = 5555
 
 client_socket = None

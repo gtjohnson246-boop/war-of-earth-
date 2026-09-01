@@ -102,6 +102,23 @@ MAP_SPACE_STATION = [
     [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8],
 ]
 
+# Map 5: Gymnasium (10 = Bleachers, 11 = Basketball Hoop Pole)
+MAP_GYM = [
+    [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+    [6, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 6],
+    [6, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 6],
+    [6, 10, 10, 10, 0, 11, 0, 0, 0, 0, 0, 11, 10, 10, 10, 10, 10, 6],
+    [6, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 6],
+    [6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6],
+    [6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6],
+    [6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6],
+    [6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6],
+    [6, 10, 10, 10, 0, 11, 0, 0, 0, 0, 0, 11, 10, 10, 10, 10, 10, 6],
+    [6, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 6],
+    [6, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 6],
+    [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+]
+
 active_map = MAP_TECH
 map_name = "TECH ROOM"
 map_size_y = len(active_map)
@@ -153,6 +170,13 @@ HOUSE_BROWN = (110, 80, 60)
 WINDOW_BLUE = (25, 65, 110)
 STADIUM_WHITE = (220, 225, 230)
 GOAL_YELLOW = (230, 180, 30)
+
+# Gymnasium Palette
+GYM_WALL = (180, 185, 190)
+GYM_BLEACHERS = (80, 85, 95)
+GYM_FLOOR = (210, 195, 170)
+GYM_HOOP_POLE = (40, 45, 55)
+GYM_HOOP_RIM = (255, 140, 30)
 
 # Weapon and Skin Colors
 GUN_STEEL = (60, 65, 70)
@@ -265,6 +289,34 @@ def generate_textures():
                 shield.set_at((x, y), (10, 20, 50))
     tex_dict[9] = shield
 
+    # 10: Gymnasium Bleachers (Metal with horizontal slats)
+    bleachers = pygame.Surface((TEX_SIZE, TEX_SIZE))
+    for y in range(TEX_SIZE):
+        for x in range(TEX_SIZE):
+            is_slat = (y % 6 == 0)
+            if is_slat:
+                bleachers.set_at((x, y), (40, 40, 45))
+            else:
+                noise = random.randint(-8, 8)
+                bleachers.set_at((x, y), (max(0, min(255, GYM_BLEACHERS[0] + noise)), 
+                                          max(0, min(255, GYM_BLEACHERS[1] + noise)), 
+                                          max(0, min(255, GYM_BLEACHERS[2] + noise))))
+    tex_dict[10] = bleachers
+
+    # 11: Basketball Hoop Pole (Vertical striped metal support)
+    hoop_pole = pygame.Surface((TEX_SIZE, TEX_SIZE))
+    for y in range(TEX_SIZE):
+        for x in range(TEX_SIZE):
+            is_stripe = (x % 4 < 2)
+            if is_stripe:
+                hoop_pole.set_at((x, y), (GYM_HOOP_RIM[0], int(GYM_HOOP_RIM[1] * 0.5), int(GYM_HOOP_RIM[2] * 0.4)))
+            else:
+                noise = random.randint(-5, 5)
+                hoop_pole.set_at((x, y), (max(0, min(255, GYM_HOOP_POLE[0] + noise)), 
+                                          max(0, min(255, GYM_HOOP_POLE[1] + noise)), 
+                                          max(0, min(255, GYM_HOOP_POLE[2] + noise))))
+    tex_dict[11] = hoop_pole
+
     return tex_dict
 
 TEXTURES = generate_textures()
@@ -308,6 +360,7 @@ btn_npcs_rect = pygame.Rect(WIDTH // 2 - 180, HEIGHT // 2 + 50, 360, 50)
 btn_map_neighborhood = pygame.Rect(WIDTH // 2 - 220, HEIGHT // 2 - 70, 440, 45)
 btn_map_soccer       = pygame.Rect(WIDTH // 2 - 220, HEIGHT // 2 - 15, 440, 45)
 btn_map_space        = pygame.Rect(WIDTH // 2 - 220, HEIGHT // 2 + 40, 440, 45)
+btn_map_gym          = pygame.Rect(WIDTH // 2 - 220, HEIGHT // 2 + 95, 440, 45)
 
 is_shooting = False
 shoot_frame = 0
@@ -575,6 +628,20 @@ def select_and_load_map(chosen_map):
                     NPC(14.5 * TILE_SIZE, 10.5 * TILE_SIZE, 25)
                 ]
                 network_players = []
+    elif chosen_map == "GYM":
+            active_map = MAP_GYM
+            map_name = "GYMNASIUM"
+            player_x, player_y = 9 * TILE_SIZE, 6.5 * TILE_SIZE
+            if online_mode:
+                network_players = [NPC(9 * TILE_SIZE, 2.5 * TILE_SIZE, 100)]
+                active_npcs = []
+            else:
+                active_npcs = [
+                    NPC(9 * TILE_SIZE, 2.5 * TILE_SIZE, 50),
+                    NPC(5 * TILE_SIZE, 5 * TILE_SIZE, 50),
+                    NPC(13 * TILE_SIZE, 5 * TILE_SIZE, 50)
+                ]
+                network_players = []
 
 
     map_size_y = len(active_map)
@@ -625,7 +692,9 @@ async def main():
                     elif btn_map_soccer.collidepoint(mouse_pos):
                         select_and_load_map("SOCCER")
                     elif btn_map_space.collidepoint(mouse_pos):
-                      select_and_load_map("SPACE")
+                        select_and_load_map("SPACE")
+                    elif btn_map_gym.collidepoint(mouse_pos):
+                        select_and_load_map("GYM")
 
                 elif game_state in ["GAMEPLAY", "NEIGHBORHOOD"]:
                     if event.button == 1:  
@@ -781,6 +850,12 @@ async def main():
                         pygame.draw.line(screen, color_ceil, (0, render_y), (WIDTH, render_y), 1)
                     for x in range(0, WIDTH, 100):
                         pygame.draw.line(screen, ROOF_BEAM, (x, horizon_shift), (WIDTH // 2, center_horizon_y), 1)
+                elif map_name == "GYMNASIUM":
+                    # Gym ceiling - industrial steel/concrete with support beams
+                    pygame.draw.rect(screen, GYM_WALL, (0, 0, WIDTH, center_horizon_y))
+                    for y in range(0, center_horizon_y, 30):
+                        render_y = y + horizon_shift
+                        pygame.draw.line(screen, (120, 125, 135), (0, render_y), (WIDTH, render_y), 1)
                 else:
                     # Panoramic Skybox linked to the player's rotatable view angle
                     sky_width_factor = 2400
@@ -809,6 +884,18 @@ async def main():
                         pygame.draw.line(screen, color_floor, (0, render_y), (WIDTH, render_y), 1)
                     for x in range(-200, WIDTH + 200, 80):
                         pygame.draw.line(screen, FLOOR_GRID, (WIDTH // 2, center_horizon_y), (x + int(math.sin(tick_counter * 0.01) * 10), HEIGHT + horizon_shift), 1)
+                elif map_name == "GYMNASIUM":
+                    # Gym floor - polished wooden court with perspective
+                    pygame.draw.rect(screen, GYM_FLOOR, (0, center_horizon_y, WIDTH, HEIGHT - center_horizon_y))
+                    # Add subtle floor planks perspective with shading
+                    for y in range(center_horizon_y, HEIGHT, 4):
+                        norm_depth = (y - center_horizon_y) / max(1, HEIGHT - center_horizon_y)
+                        shading = (norm_depth ** 1.5) * 0.7 + 0.3
+                        floor_color = (int(GYM_FLOOR[0] * shading), int(GYM_FLOOR[1] * shading), int(GYM_FLOOR[2] * shading))
+                        if (int(y // 2) % 2) == 0:
+                            pygame.draw.rect(screen, floor_color, (0, y, WIDTH, 4))
+                    # Center court line (white center line)
+                    pygame.draw.line(screen, (255, 255, 255), (WIDTH // 2, center_horizon_y), (WIDTH // 2, HEIGHT), 3)
                 else:
                     # Floor perspective scanning
                     base_grass = SOCCER_PITCH_GREEN if map_name == "SOCCER STADIUM" else GRASS_GREEN
@@ -1262,6 +1349,11 @@ async def main():
                 pygame.draw.rect(screen, col_map3, btn_map_space, 2, 4)
                 txt_map3 = font.render("[3] DEEP SPACE STATION", True, col_map3)
                 screen.blit(txt_map3, (btn_map_space.x + 35, btn_map_space.y + 10))
+
+                col_map4 = MATRIX_GREEN if btn_map_gym.collidepoint(mouse_pos) else WHITE
+                pygame.draw.rect(screen, col_map4, btn_map_gym, 2, 4)
+                txt_map4 = font.render("[4] GYMNASIUM", True, col_map4)
+                screen.blit(txt_map4, (btn_map_gym.x + 135, btn_map_gym.y + 10))
 
             elif game_state == "MENU":
                 screen.fill((10, 12, 22))
